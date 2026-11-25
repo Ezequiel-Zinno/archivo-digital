@@ -10,4 +10,12 @@
     <Package name="ar.edu.unsam.ddso.tp.model" />
     <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2" />
   </Match>
+  <!--
+    Services store constructor-injected repositories. Repositories are Spring-managed
+    beans (not mutable state owned by the service), so the direct reference is intended.
+  -->
+  <Match>
+    <Package name="ar.edu.unsam.ddso.tp.service" />
+    <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2" />
+  </Match>
 </FindBugsFilter>
