@@ -17,6 +17,11 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    @ExceptionHandler(PieceNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handlePieceNotFound(PieceNotFoundException ex) {
+        return error(HttpStatus.NOT_FOUND, ex.getMessage());
+    }   
+
     @ExceptionHandler(DigitizationNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleDigitizationNotFound(
             DigitizationNotFoundException ex) {

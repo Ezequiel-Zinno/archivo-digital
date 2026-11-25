@@ -11,6 +11,125 @@ Formato de request/response: JSON (`Content-Type: application/json`).
 Errores: cuerpo `{"error": "<mensaje>"}`.
 
 ---
+## Pieces (piezas)
+
+Permite registrar y consultar las piezas del archivo digital.
+
+### Crear pieza
+
+```
+POST /api/pieces
+```
+
+Request:
+
+```json
+{
+  "name": "Fotografia historica",
+  "description": "Fotografia del archivo digital",
+  "date": "2020-05-15"
+}
+```
+
+| Código | Descripción |
+|--------|-------------|
+| 201 | Pieza creada |
+| 400 | Datos obligatorios ausentes o inválidos |
+
+Response `201`:
+
+```json
+{
+  "id": 1,
+  "name": "Fotografia historica",
+  "description": "Fotografia del archivo digital",
+  "date": "2020-05-15"
+}
+```
+
+### Listar piezas
+
+```
+GET /api/pieces
+```
+
+| Código | Descripción |
+|--------|-------------|
+| 200 | Lista de piezas |
+
+### Obtener pieza
+
+```
+GET /api/pieces/{id}
+```
+
+| Código | Descripción |
+|--------|-------------|
+| 200 | Pieza encontrada |
+| 404 | Pieza inexistente |
+
+---
+
+## Digitizations (digitalizaciones)
+
+Permite registrar y consultar digitalizaciones asociadas a una pieza existente.
+
+### Crear digitalización
+
+```
+POST /api/digitizations
+```
+
+Request:
+
+```json
+{
+  "url": "https://example.com/fotografia.jpg",
+  "description": "Digitalizacion de fotografia historica",
+  "pieceId": 1
+}
+```
+
+| Código | Descripción |
+|--------|-------------|
+| 201 | Digitalización creada |
+| 400 | Datos obligatorios ausentes o inválidos |
+| 404 | Pieza inexistente |
+
+Response `201`:
+
+```json
+{
+  "id": 1,
+  "url": "https://example.com/fotografia.jpg",
+  "description": "Digitalizacion de fotografia historica",
+  "pieceId": 1
+}
+```
+
+### Listar digitalizaciones
+
+```
+GET /api/digitizations
+```
+
+| Código | Descripción |
+|--------|-------------|
+| 200 | Lista de digitalizaciones |
+
+### Obtener digitalización
+
+```
+GET /api/digitizations/{id}
+```
+
+| Código | Descripción |
+|--------|-------------|
+| 200 | Digitalización encontrada |
+| 404 | Digitalización inexistente |
+
+---
+
 
 ## Tags
 
