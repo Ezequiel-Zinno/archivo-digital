@@ -360,8 +360,102 @@ Resultados de la última ejecución:
 | PMD | BUILD SUCCESS |
 | SpotBugs | 0 errores y 0 problemas detectados |
 
-## 13. Referencias
+## 13. Pruebas de volumen y rendimiento
 
-- [README.md](README.md)
-- [Documentación de la API](docs/api.md)
-- [Arquitectura del sistema](ARCHITECTURE.md)
+Fecha de ejecución: 28/11/2026.
+
+### Objetivo
+
+Evaluar el comportamiento de las búsquedas de piezas
+con cantidades crecientes de registros.
+
+### Preparación
+
+Las pruebas se realizaron localmente utilizando H2
+en memoria y datos sintéticos.
+
+Se cargaron inicialmente 1000 piezas mediante la
+consola H2:
+
+```sql
+INSERT INTO pieces (name, description, date)
+SELECT 'Pieza de prueba ' || X,
+       'Descripcion de prueba ' || X,
+       DATE '1920-05-15'
+FROM SYSTEM_RANGE(1, 1000);
+```
+
+Posteriormente se amplió la cantidad de registros
+a 10000 y 50000, utilizando los rangos 1001 a 10000
+y 10001 a 50000 respectivamente.
+
+Los tiempos se midieron desde PowerShell mediante
+Measure-Command e Invoke-RestMethod.
+
+### Resultados obtenidos
+
+| Cantidad de piezas | Una coincidencia | Todas las piezas | Sin coincidencias |
+|---:|---:|---:|---:|
+| 1000 | 167,56 ms | 84,48 ms | 15,07 ms |
+| 10000 | 24,25 ms | 192,67 ms | 11,36 ms |
+| 50000 | 56,10 ms | 913,38 ms | 36,79 ms |
+
+Todas las búsquedas devolvieron la cantidad
+esperada de resultados.
+
+### Búsqueda con filtros combinados
+
+Con 50000 piezas registradas, se creó una digitalización
+asociada a la pieza con ID 50000 y se catalogó con
+el tag activo "archivo".
+
+Se ejecutó la siguiente consulta:
+
+```powershell
+Measure-Command {
+    $resultado = Invoke-RestMethod -Uri "http://localhost:8080/api/pieces/search?name=prueba&description=prueba&date=1920-05-15&tag=archivo"
+} | Select-Object TotalMilliseconds
+
+$resultado.Count
+```
+
+| Escenario | Tiempo | Resultados |
+|---|---:|---:|
+| Nombre, descripción, fecha y tag | 181,35 ms | 1 |
+| Tag inexistente | 60,25 ms | 0 |
+
+Se verificó que la búsqueda combinada devolviera
+exactamente la pieza con ID 50000.
+
+### Conclusiones y limitaciones
+
+Las búsquedas se realizan mediante consultas a la
+base de datos, evitando cargar todas las piezas
+en memoria para aplicar los filtros.
+
+En las pruebas realizadas, todas las consultas
+respondieron en menos de un segundo.
+
+La búsqueda que devuelve todas las piezas presenta
+un mayor tiempo de respuesta debido al volumen
+de resultados recuperados y serializados.
+
+Las mediciones corresponden a ejecuciones individuales
+en un entorno local, sin concurrencia, sin paginación
+y con una sola asociación de catalogación.
+
+Los resultados pueden variar según el hardware,
+el calentamiento de la aplicación y las condiciones
+de ejecución.
+
+Estas pruebas no garantizan el mismo rendimiento
+en un entorno de producción.
+
+Como mejora futura, se podría incorporar paginación
+para limitar la cantidad de resultados por consulta.
+
+## 14. Referencias
+
+- [README.md](../README.md)
+- [Documentación de la API](api.md)
+- [Arquitectura del sistema](../ARCHITECTURE.md)

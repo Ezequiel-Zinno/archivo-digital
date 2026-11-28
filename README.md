@@ -32,6 +32,8 @@ Archivo Digital es una aplicación que permite registrar piezas, gestionar sus d
 - Asociación de digitalizaciones con sus respectivas piezas.
 - Creación, consulta, activación y desactivación de etiquetas.
 - Catalogación de digitalizaciones mediante etiquetas.
+- Desasociación de etiquetas de las digitalizaciones.
+- Conservación de las catalogaciones existentes al desactivar etiquetas.
 - Integración con bot de Telegram (@timbero02_bot) para buscar piezas.
 - Validación de datos y manejo de excepciones.
 - Pruebas automatizadas.
@@ -61,7 +63,8 @@ src/test/java/ar/edu/unsam/ddso/tp/
 
 docs/
 ├── diagrams/
-└── api.md
+├── api.md
+└── test.md
 
 ## Requisitos
 
@@ -117,7 +120,23 @@ Una vez levantada la aplicación con TELEGRAM_BOT_TOKEN configurado:
 
 La documentación de los endpoints, formatos JSON y códigos de respuesta HTTP se encuentra en [docs/api.md](docs/api.md).
 
-## Pruebas funcionales
+## Arquitectura y diagramas
 
-La secuencia de pruebas manuales de la API REST y del bot de Telegram
-se encuentra documentada en [test.md](test.md).
+- [Arquitectura del sistema](ARCHITECTURE.md).
+- [Diagramas de arquitectura](docs/diagrams/architecture-diagram.md).
+- [Diagrama de clases de dominio](docs/diagrams/domain-class-diagram.md).
+- [Diagrama de base de datos](docs/diagrams/database-diagram.md).
+- [Diagramas de secuencia](docs/diagrams/).
+
+## Pruebas del sistema
+
+La secuencia de pruebas manuales de la API REST y del bot
+de Telegram, las pruebas automatizadas, los controles de
+calidad y las pruebas de volumen se encuentran documentados
+en [docs/test.md](docs/test.md).
+
+Se ejecutaron 39 pruebas automatizadas sin fallos ni errores.
+
+También se realizaron pruebas locales de búsqueda con hasta
+50000 piezas. Los resultados y sus limitaciones se detallan
+en el documento de pruebas.
