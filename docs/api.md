@@ -68,6 +68,46 @@ GET /api/pieces/{id}
 | 200 | Pieza encontrada |
 | 404 | Pieza inexistente |
 
+### Buscar piezas
+
+```
+GET /api/pieces/search
+```
+
+Permite filtrar piezas por nombre, descripción, fecha o etiqueta asociada. Todos los parámetros son opcionales y combinables.
+
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `name` | string | Filtra por coincidencia parcial en el nombre de la pieza (sin distinguir mayúsculas/minúsculas) |
+| `description` | string | Filtra por coincidencia parcial en la descripción de la pieza |
+| `date` | date (`AAAA-MM-DD`) | Filtra por fecha exacta de la pieza |
+| `tag` | string | Filtra piezas que tengan una digitalización catalogada con esa etiqueta |
+
+| Código | Descripción |
+|--------|-------------|
+| 200 | Lista de piezas que cumplen los criterios |
+| 400 | Formato de parámetro inválido (por ejemplo, fecha mal formada) |
+
+Ejemplos de consulta:
+
+```
+GET /api/pieces/search?name=foto
+GET /api/pieces/search?name=foto&tag=archivo&date=2020-05-15
+```
+
+Response `200`:
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Fotografia historica",
+    "description": "Fotografia del archivo digital",
+    "date": "2020-05-15"
+  }
+]
+```
+
 ---
 
 ## Digitizations (digitalizaciones)
@@ -129,7 +169,6 @@ GET /api/digitizations/{id}
 | 404 | Digitalización inexistente |
 
 ---
-
 
 ## Tags
 

@@ -1,5 +1,6 @@
 package ar.edu.unsam.ddso.tp.service;
 
+import jakarta.annotation.PreDestroy;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +45,12 @@ public class TelegramBotPoller {
         scheduler.scheduleWithFixedDelay(this::pollUpdates, 0, 2, TimeUnit.SECONDS);
     }
 
+    @PreDestroy
+    public void stopPolling() {
+        LOGGER.info("Deteniendo polling del bot de Telegram...");
+        scheduler.shutdownNow();
+    }
+
     // ---------- Privados ----------
 
     private void pollUpdates() {
@@ -79,7 +86,8 @@ public class TelegramBotPoller {
                 }
             }
         } catch (Exception ex) {
-            LOGGER.warn("Error consultando actualizaciones de Telegram: {}", ex.getMessage());
+            String safeMessage = sanitizeErrorMessage(ex.getMessage());
+            LOGGER.warn("Error consultando actualizaciones de Telegram: {}", safeMessage);
         }
     }
 
@@ -87,6 +95,16 @@ public class TelegramBotPoller {
         String url = TELEGRAM_API_BASE + botToken + "/sendMessage";
         SendMessagePayload payload = new SendMessagePayload(chatId, text);
         restClient.post().uri(url).body(payload).retrieve().toBodilessEntity();
+    }
+
+    private String sanitizeErrorMessage(String message) {
+        if (message == null) {
+            return "Error desconocido";
+        }
+        if (botToken.isBlank()) {
+            return message;
+        }
+        return message.replace(botToken, "***");
     }
 
     private record SendMessagePayload(long chat_id, String text) {
