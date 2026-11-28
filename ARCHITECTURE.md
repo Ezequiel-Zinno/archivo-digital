@@ -1,101 +1,124 @@
 # ARCHITECTURE.md
 
-Documento transversal (no cambia por feature/iteración). Complementa a `AGENTS.md`
-(convenciones de código) con la descripción del dominio y la arquitectura general del sistema.
+Documento transversal que complementa a `AGENTS.md`
+con la descripción del dominio y la arquitectura general
+del sistema.
 
 ## 1. Descripción general
 
-Monolito Spring Boot (Java 21 + H2) que gestiona un archivo digital: alta de piezas
-físicas, digitalización (URLs asociadas a una pieza), catalogación (tags sobre las
-digitalizaciones) y búsqueda/disponibilización del material. La API es HTTP/JSON
-(sin pantallas); la visualización se hará vía bot de Telegram.
+Archivo Digital es una aplicación monolítica desarrollada
+con Java 21, Spring Boot y H2.
+
+Permite registrar piezas físicas, asociar digitalizaciones,
+administrar tags, catalogar digitalizaciones y buscar piezas.
+
+El sistema ofrece una API REST HTTP/JSON y una integración
+con Telegram para realizar búsquedas y mostrar resultados.
 
 ## 2. Actores y sistemas
 
-- **Administrador** — gestiona el conjunto de tags (alta, activar/desactivar) y
-  cataloga digitalizaciones.
-- **Usuario / Bot de Telegram** — busca piezas por fecha, nombre, descripción y tags.
-- **Sistema externo (futuro)** — servicios de OCR/etiquetado (extra del TP).
+- Administrador: gestiona los tags y realiza catalogaciones.
+- Cliente REST: registra y consulta piezas y digitalizaciones.
+- Usuario de Telegram: busca piezas mediante el bot.
+- API de Telegram: servicio externo utilizado para recibir
+  mensajes y enviar respuestas.
 
 ## 3. Alcance y fuera de alcance
 
-**Dentro de alcance:**
-- Digitalización: alta de piezas y asociación de digitalizaciones (URL + descripción).
-- Catalogación: asociar tags (de un conjunto administrable) a digitalizaciones.
-- Disponibilizació: búsquedas por fecha, nombre, descripción y tags sobre **piezas**.
-- Visualización: bot de Telegram para buscar y mostrar resultados.
+### Dentro de alcance
 
-**Fuera de alcance:**
-- Pantallas / frontend web.
-- Procesamiento real de imágenes (OCR) salvo extra.
+- Digitalización: alta de piezas y asociación de recursos
+  digitales mediante URL y descripción.
+- Catalogación: asociación de tags a digitalizaciones.
+- Administración de tags: creación, consulta, activación
+  y desactivación.
+- Disponibilización: búsqueda de piezas por fecha, nombre,
+  descripción y tags.
+- Visualización: búsqueda y presentación de resultados
+  mediante Telegram.
+
+### Fuera de alcance
+
+- Pantallas o frontend web.
+- Procesamiento de imágenes mediante OCR.
+- Etiquetado automático.
+- Importación masiva mediante CSV.
 
 ## 4. Glosario de dominio
 
 | Término | Significado |
 |---|---|
-| Pieza (`Piece`) | Material físico del archivo (nombre, descripción, fecha). |
-| Digitalización (`Digitization`) | URL con un recurso digitalizado y descripción; pertenece a una pieza. |
-| Tag (`Tag`) | Etiqueta administrable (activa/inactiva) seleccionada de un conjunto fijo. |
-| Catalogación (`Cataloging`) | Asociación única entre una digitalización y un tag (entidad intermedia). |
+| Piece | Pieza física del archivo con nombre, descripción y fecha. |
+| Digitization | Recurso digital identificado mediante una URL y asociado a una pieza. |
+| Tag | Etiqueta administrable que puede estar activa o inactiva. |
+| Cataloging | Asociación única entre una digitalización y un tag. |
 
-> Todo el código va en inglés (AGENTS.md): `Piece`, `Digitization`, `Tag`, `Cataloging`
-> / tabla `catalogings`. En la documentación en español se usa "catalogación" como
-> término de dominio.
+El código utiliza nombres en inglés según las convenciones
+establecidas en AGENTS.md.
 
-## 5. Vista C4 — Contexto (Nivel 1)
+## 5. Arquitectura del sistema
 
-```mermaid
-C4Context
-    title Contexto del sistema
-    Person(admin, "Administrador", "Gestiona tags y cataloga digitalizaciones")
-    Person(user, "Usuario", "Busca piezas vía bot de Telegram")
-    System(archivo, "Archivo Digital", "Gestiona piezas, digitalizaciones, tags y búsquedas")
-    System_Bot(telegram, "Bot de Telegram", "Interfaz de búsqueda")
-    admin --> archivo
-    user --> telegram
-    telegram --> archivo
-```
+Se utiliza una arquitectura monolítica organizada en capas:
 
-## 6. Vista C4 — Contenedores (Nivel 2)
+- Presentación: controllers REST.
+- Negocio: servicios y entidades del dominio.
+- Acceso a datos: repositories mediante Spring Data JPA.
 
-```mermaid
-C4Container
-    title Contenedores
-    Container(api, "API Web", "Spring Boot MVC", "Endpoints REST de digitalización, catalogación y búsqueda")
-    Container(db, "Base de datos", "H2", "pieces, digitizations, tags, catalogings")
-    Container(bot, "Bot de Telegram", "Spring", "Consultas de búsqueda")
-    api --> db
-    bot --> api
-```
+Los DTOs permiten intercambiar información entre la API
+y los servicios sin exponer directamente las entidades.
 
-## 7. Diagrama de clases de dominio
+Las excepciones se gestionan mediante GlobalExceptionHandler.
 
-Ver [`docs/diagrams/domain-class-diagram.md`](docs/diagrams/domain-class-diagram.md).
+La integración con Telegram forma parte de la misma
+aplicación y reutiliza PieceSearchService directamente.
 
-```mermaid
-classDiagram
-    Piece "1" --> "*" Digitization : has
-    Digitization "1" --> "*" Cataloging : catalogings
-    Tag "1" --> "*" Cataloging : catalogings
-    Cataloging --> Tag : tag
-```
+El sistema utiliza una única base de datos H2 en el
+perfil local.
 
-Diagrama de BD: [`docs/diagrams/database-diagram.md`](docs/diagrams/database-diagram.md).
-Secuencia de catalogación: [`docs/diagrams/sequence-cataloging.md`](docs/diagrams/sequence-cataloging.md).
+Ver [diagramas de arquitectura](docs/diagrams/architecture-diagram.md).
+
+## 6. Diagramas del dominio y persistencia
+
+- [Diagrama de clases de dominio](docs/diagrams/domain-class-diagram.md).
+- [Diagrama de base de datos](docs/diagrams/database-diagram.md).
+
+## 7. Diagramas de secuencia
+
+- [Creación de piezas](docs/diagrams/sequence-piece.md).
+- [Creación de digitalizaciones](docs/diagrams/sequence-digitization.md).
+- [Catalogación](docs/diagrams/sequence-cataloging.md).
+- [Búsqueda de piezas](docs/diagrams/sequence-search.md).
+- [Búsqueda mediante Telegram](docs/diagrams/sequence-telegram.md).
 
 ## 8. Estado de implementación
 
 - Alta y consulta de piezas y digitalizaciones.
-- Administración de tags: alta, consulta, activación y desactivación.
-- Catalogación y desasociación de tags en digitalizaciones.
-- Conservación de las asociaciones existentes al desactivar un tag.
-- Búsqueda de piezas por fecha, nombre, descripción y tags.
-- Integración con el bot de Telegram para realizar búsquedas.
+- Administración de tags.
+- Catalogación y desasociación de tags.
+- Conservación de las asociaciones existentes al desactivar tags.
+- Búsqueda de piezas mediante filtros combinables.
+- Integración con Telegram.
 - Validación de datos y manejo de excepciones.
-- Pruebas automatizadas y controles de calidad del código.
-- Secuencia de pruebas funcionales documentada en [test.md](test.md).
+- Pruebas automatizadas y controles de calidad.
+- Pruebas funcionales y de volumen.
 
-## 9. Referencias
+## 9. Consideraciones de rendimiento
 
-- Convenciones de código: [`AGENTS.md`](AGENTS.md).
-- Especificación de la API: [`docs/api.md`](docs/api.md).
+Los filtros de búsqueda se aplican mediante consultas
+a la base de datos utilizando JPQL.
+
+Se realizaron pruebas locales con hasta 50000 piezas.
+
+Actualmente no se utiliza paginación, por lo que las
+consultas con muchas coincidencias pueden generar
+respuestas de mayor tamaño.
+
+Los resultados y las limitaciones de las pruebas se
+encuentran documentados en docs/test.md.
+
+## 10. Referencias
+
+- [Convenciones de código](AGENTS.md).
+- [Documentación de la API](docs/api.md).
+- [Pruebas del sistema](docs/test.md).
+- [README del proyecto](README.md).
