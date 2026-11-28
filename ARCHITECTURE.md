@@ -83,12 +83,17 @@ classDiagram
 Diagrama de BD: [`docs/diagrams/database-diagram.md`](docs/diagrams/database-diagram.md).
 Secuencia de catalogación: [`docs/diagrams/sequence-cataloging.md`](docs/diagrams/sequence-cataloging.md).
 
-## 8. Preguntas abiertas / próximos pasos
+## 8. Estado de implementación
 
-- Endpoints de alta de `Piece` / `Digitization` (parte de digitalización).
-- Disponibilización: búsquedas sobre piezas por fecha, nombre, descripción y tags.
-- Bot de Telegram (visualización).
-- `test.md` con la secuencia de uso completa del sistema.
+- Alta y consulta de piezas y digitalizaciones.
+- Administración de tags: alta, consulta, activación y desactivación.
+- Catalogación y desasociación de tags en digitalizaciones.
+- Conservación de las asociaciones existentes al desactivar un tag.
+- Búsqueda de piezas por fecha, nombre, descripción y tags.
+- Integración con el bot de Telegram para realizar búsquedas.
+- Validación de datos y manejo de excepciones.
+- Pruebas automatizadas y controles de calidad del código.
+- Secuencia de pruebas funcionales documentada en [test.md](test.md).
 
 ## 9. Referencias
 
