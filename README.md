@@ -116,3 +116,8 @@ Una vez levantada la aplicación con TELEGRAM_BOT_TOKEN configurado:
 ## Documentación de la API
 
 La documentación de los endpoints, formatos JSON y códigos de respuesta HTTP se encuentra en [docs/api.md](docs/api.md).
+
+## Pruebas funcionales
+
+La secuencia de pruebas manuales de la API REST y del bot de Telegram
+se encuentra documentada en [test.md](test.md).
